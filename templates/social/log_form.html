@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}{% if entry %}Edit entry{% else %}Log or review{% endif %}: {{ work.title }} · Philos{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<div class="container narrow">
+  <div class="log-layout">
+    <div class="log-cover">{% cover work "md" False %}</div>
+    <form class="card form-card" method="post">
+      {% csrf_token %}
+      <p class="eyebrow">{% if entry %}Edit diary entry{% else %}I read…{% endif %}</p>
+      <h1 class="form-title">{{ work.title }} <span class="muted">{{ work.year_display }}</span></h1>
+      {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+      <div class="form-row">
+        <label class="field field-inline"><span>Read on</span>{{ form.read_on }}</label>
+        <label class="check">{{ form.reread }} <span>I've read this before</span></label>
+      </div>
+      <div class="form-row">
+        <div class="field"><span class="field-label">Rating</span>{% include "partials/star_input.html" with value=form.rating.value %}</div>
+        <label class="check like-check">{{ form.liked }} <span>♥ Like</span></label>
+      </div>
+      <label class="field"><span class="field-label">Review <small class="muted">(optional)</small></span>
+        <textarea name="review" rows="10" maxlength="12000" placeholder="What did it make you think? What stayed with you? Where do you disagree?">{{ form.review.value|default:'' }}</textarea>
+        {{ form.review.errors }}
+      </label>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">{% if entry %}Save changes{% else %}Save{% endif %}</button>
+        <a class="btn btn-ghost" href="{% if entry %}{{ entry.get_absolute_url }}{% else %}{{ work.get_absolute_url }}{% endif %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+  {% if entry %}
+  <form class="danger-zone" method="post" action="{% url 'review_delete' entry.user.username entry.pk %}" data-confirm="Delete this diary entry? This cannot be undone.">
+    {% csrf_token %}<button class="btn btn-danger btn-sm" type="submit">{% icon "trash" 14 %} Delete entry</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

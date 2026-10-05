@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}The branches of philosophy and the big questions they ask · Philos{% endblock %}
+{% block description %}Ethics, metaphysics, epistemology, political philosophy, the meaning of life and more: explore the big questions and the books that answer them.{% endblock %}
+{% block content %}
+<div class="container">
+  <header class="page-header">
+    <h1 class="page-title">The big questions</h1>
+    <p class="lead">Philosophy is organised around a handful of questions people have asked for thousands of years. Pick one.</p>
+  </header>
+  <ul class="topic-grid">
+    {% for t in topics %}
+    <li><a class="topic-card" href="{{ t.get_absolute_url }}">
+      <span class="question">{{ t.question }}</span>
+      <strong>{{ t.name }}</strong>
+      <span class="muted small">{{ t.summary }}</span>
+      <span class="muted small">{{ t.n_works }} works · {{ t.n_thinkers }} thinkers</span>
+    </a></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

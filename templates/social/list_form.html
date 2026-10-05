@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}{% if reading_list %}Edit list{% else %}New list{% endif %} · Philos{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<div class="container narrow">
+  <form class="card form-card" method="post">
+    {% csrf_token %}
+    <h1 class="form-title">{% if reading_list %}Edit list{% else %}New list{% endif %}</h1>
+    {% if work %}<input type="hidden" name="add" value="{{ work.slug }}"><p class="muted">Starting with <strong>{{ work.title }}</strong>.</p>{% endif %}
+    <label class="field"><span class="field-label">Title</span>{{ form.title }}{{ form.title.errors }}</label>
+    <label class="field"><span class="field-label">Description <small class="muted">(optional)</small></span>{{ form.description }}{{ form.description.errors }}</label>
+    <label class="check">{{ form.is_ranked }} <span>Ranked list (show numbers)</span></label>
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">{% if reading_list %}Save{% else %}Create list{% endif %}</button>
+      <a class="btn btn-ghost" href="{% if reading_list %}{{ reading_list.get_absolute_url }}{% else %}{% url 'list_index' %}{% endif %}">Cancel</a>
+    </div>
+  </form>
+  {% if reading_list %}
+  <form class="danger-zone" method="post" action="{% url 'list_delete' reading_list.user.username reading_list.slug %}" data-confirm="Delete this list? This cannot be undone.">
+    {% csrf_token %}<button class="btn btn-danger btn-sm" type="submit">{% icon "trash" 14 %} Delete list</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

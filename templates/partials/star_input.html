@@ -1,0 +1,14 @@
+{% load philos %}<div class="star-input" data-star-input>
+  <input type="hidden" name="rating" value="{{ value|default:0 }}">
+  <div class="stars stars-lg" style="--pct: {% widthratio value|default:0 10 100 %}%" aria-hidden="true"></div>
+  <div class="star-hits" role="radiogroup" aria-label="Rating">
+    {% for n in "123456789X" %}<button type="button" data-value="{{ forloop.counter }}" aria-label="{{ forloop.counter|halves }} stars" role="radio"></button>{% endfor %}
+  </div>
+  <button type="button" class="star-clear" data-star-clear>Clear</button>
+</div>
+<noscript>
+  <select name="rating" aria-label="Rating">
+    <option value="0">No rating</option>
+    {% for n in "123456789X" %}<option value="{{ forloop.counter }}" {% if value == forloop.counter %}selected{% endif %}>{{ forloop.counter|halves }} ★</option>{% endfor %}
+  </select>
+</noscript>

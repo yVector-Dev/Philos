@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}About Philos — a social network for philosophy and history{% endblock %}
+{% block description %}Philos is a free social network where readers track, rate and review the great works of philosophy and history, from Confucius and Plato to Arendt and Camus.{% endblock %}
+{% block content %}
+<article class="container prose-page">
+  <p class="eyebrow">About</p>
+  <h1 class="page-title">Philosophy is for everyone.</h1>
+  <p class="lead">Philos is a home for people who want to read the books that shaped civilization—and talk about them.</p>
+  <div class="prose">
+    <p>For most of history, the great conversation of philosophy happened in marketplaces, gardens, letters and lecture halls. Socrates questioned strangers in the Athenian agora. Seneca wrote letters to a friend. Confucius taught whoever showed up eager to learn. Today the books are easier to get than ever, yet many people never open them—because they don't know where to start, or have no one to talk to about them.</p>
+    <p>Philos is built to fix that. It works like a reading diary and a social network in one:</p>
+    <ul>
+      <li><strong>Log</strong> every work you read and keep a diary of your intellectual life.</li>
+      <li><strong>Rate and review</strong> the classics—honestly. Is the <em>Critique of Pure Reason</em> really worth it? Tell us.</li>
+      <li><strong>Follow</strong> readers whose taste you trust and see what they're thinking about.</li>
+      <li><strong>Build lists</strong>: reading paths, syllabi, desert-island shelves, arguments in book form.</li>
+      <li><strong>Explore</strong> {{ counts.thinkers }} thinkers and {{ counts.works }} works across 2,500 years, with a timeline, schools of thought, the big questions and the influences that connect them.</li>
+    </ul>
+    <p>Our catalogue spans Chinese, Indian, Greek, Roman, Islamic, Jewish, European, African, American and Japanese traditions, plus the great historians—because understanding where ideas come from is the first step to thinking well about where we are going.</p>
+    <blockquote>“To be ignorant of what occurred before you were born is to remain always a child.” — Cicero</blockquote>
+    <p>Philos is free. Join, mark a few books you've read, and pick a reading path. The unexamined life, as someone once said, is not worth living.</p>
+  </div>
+  <p><a class="btn btn-primary btn-lg" href="{% url 'signup' %}">Join Philos</a></p>
+</article>
+{% endblock %}

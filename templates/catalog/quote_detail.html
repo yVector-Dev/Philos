@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}“{{ quote.text|truncatechars:80 }}” — {{ quote.thinker.name }} · Philos{% endblock %}
+{% block description %}“{{ quote.text|truncatechars:140 }}” — {{ quote.thinker.name }}{% if quote.source_display %}, {{ quote.source_display }}{% endif %}. Meaning, source and context on Philos.{% endblock %}
+{% block og_title %}“{{ quote.text|truncatechars:90 }}” — {{ quote.thinker.name }}{% endblock %}
+{% block og_description %}{{ quote.thinker.tagline }}{% endblock %}
+{% block content %}
+<div class="container narrow">
+  <div class="quote-page">
+    {% include "partials/quote_card.html" with large=True hide_link=True %}
+    <div class="quote-actions">
+      <button class="btn btn-ghost" type="button" data-share data-title="“{{ quote.text|truncatechars:100 }}” — {{ quote.thinker.name }}">{% icon "share" 16 %} Share</button>
+      <a class="btn btn-ghost" href="{% url 'quote_list' %}">More quotes</a>
+    </div>
+  </div>
+  <section class="section">
+    <h2 class="section-label">About {{ quote.thinker.name }}</h2>
+    <a class="thinker-card" href="{{ quote.thinker.get_absolute_url }}" style="--era: {{ quote.thinker.era.color }}">
+      {% thinker_avatar quote.thinker "md" %}
+      <span class="thinker-card-body"><strong>{{ quote.thinker.name }}</strong><small>{{ quote.thinker.lifespan }}</small><span class="thinker-card-tag">{{ quote.thinker.tagline }}</span></span>
+    </a>
+  </section>
+  {% if quote.work %}
+  <section class="section with-cover">
+    {% cover quote.work "sm" %}
+    <div><h2 class="section-label">From</h2><h3 class="section-title"><a href="{{ quote.work.get_absolute_url }}">{{ quote.work.title }}</a></h3><p class="muted">{{ quote.work.summary }}</p></div>
+  </section>
+  {% endif %}
+  {% if more %}
+  <section class="section">
+    <h2 class="section-label">More from {{ quote.thinker.name }}</h2>
+    <div class="quote-stack">{% for quote in more %}{% include "partials/quote_card.html" %}{% endfor %}</div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% load philos %}<{% if link %}a href="{{ work.get_absolute_url }}"{% else %}div{% endif %} class="cover cover-{{ size }} cover-{{ work.cover_style }} {{ work.cover_title_class }}" style="--cover: {{ work.cover_color }}" {% if link %}aria-label="{{ work.title }} by {{ work.author.name }}"{% endif %}>
+  <span class="cover-inner" aria-hidden="true">
+    <span class="cover-ornament">✦</span>
+    <span class="cover-title">{{ work.title }}</span>
+    <span class="cover-rule"></span>
+    <span class="cover-author">{{ work.author.name }}</span>
+  </span>
+  {% if rating %}<span class="cover-badge" aria-hidden="true">{{ rating|stars }}</span>{% endif %}
+</{% if link %}a{% else %}div{% endif %}>{% if show_meta %}
+<div class="cover-meta">
+  <a class="cover-meta-title" href="{{ work.get_absolute_url }}">{{ work.title }}</a>
+  <span class="cover-meta-sub">{{ work.author.name }}{% if work.year is not None %} · {{ work.year_display }}{% endif %}</span>
+</div>{% endif %}

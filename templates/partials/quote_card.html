@@ -1,0 +1,8 @@
+{% load philos %}<figure class="quote-card{% if large %} quote-large{% endif %}">
+  <blockquote><p>{{ quote.text }}</p></blockquote>
+  <figcaption>
+    <a href="{{ quote.thinker.get_absolute_url }}" class="quote-author">{% thinker_avatar quote.thinker "xs" %} {{ quote.thinker.name }}</a>
+    {% if quote.work %}<span class="muted">· <a href="{{ quote.work.get_absolute_url }}"><cite>{{ quote.work.title }}</cite></a></span>{% elif quote.source %}<span class="muted">· <cite>{{ quote.source }}</cite></span>{% endif %}
+    {% if not hide_link %}<a class="quote-permalink" href="{{ quote.get_absolute_url }}" aria-label="Share this quote">{% icon "link" 14 %}</a>{% endif %}
+  </figcaption>
+</figure>

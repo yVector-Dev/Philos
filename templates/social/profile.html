@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}{{ profile_user.name }} (@{{ profile_user.username }}) — reading diary · Philos{% endblock %}
+{% block description %}{{ profile_user.name }} has read {{ stats.read }} works of philosophy and history on Philos.{% if profile_user.bio %} {{ profile_user.bio|truncatechars:120 }}{% endif %}{% endblock %}
+{% block og_type %}profile{% endblock %}
+{% block content %}
+<div class="container">
+  {% include "social/_profile_header.html" %}
+  <div class="profile-layout">
+    <div class="profile-main">
+      <section class="section">
+        <h2 class="section-label">Favourite works</h2>
+        {% if favorites %}
+          <ul class="cover-row cover-row-4">{% for work in favorites %}<li>{% cover work "md" True True %}</li>{% endfor %}</ul>
+        {% elif user == profile_user %}
+          <p class="empty-state small">Pick up to four favourites in <a href="{% url 'settings' %}">settings</a>.</p>
+        {% else %}<p class="muted small">No favourites chosen yet.</p>{% endif %}
+      </section>
+
+      <section class="section">
+        <div class="section-head"><h2 class="section-label">Recently read</h2><a href="{% url 'profile_works' profile_user.username %}">All →</a></div>
+        {% if recent %}
+          <ul class="cover-row cover-row-8">{% for st in recent %}<li>{% cover st.work "md" True False st.rating %}</li>{% endfor %}</ul>
+        {% elif user == profile_user %}
+          <div class="empty-state"><p>Your shelf is empty. Mark a few works you've read to get started.</p><a class="btn btn-primary" href="{% url 'welcome' %}">Quick start</a></div>
+        {% else %}<p class="muted small">Nothing yet.</p>{% endif %}
+      </section>
+
+      {% if recent_reviews %}
+      <section class="section">
+        <div class="section-head"><h2 class="section-label">Recent reviews</h2><a href="{% url 'profile_reviews' profile_user.username %}">All →</a></div>
+        <div class="review-list">{% for entry in recent_reviews %}{% include "partials/review_card.html" with show_work=True %}{% endfor %}</div>
+      </section>
+      {% endif %}
+
+      {% if lists %}
+      <section class="section">
+        <div class="section-head"><h2 class="section-label">Lists</h2><a href="{% url 'profile_lists' profile_user.username %}">All →</a></div>
+        <div class="list-grid list-grid-2">{% for rl in lists %}{% include "partials/list_card.html" with hide_description=True %}{% endfor %}</div>
+      </section>
+      {% endif %}
+    </div>
+
+    <aside class="profile-side">
+      <section class="side-card">
+        <h2 class="section-label">Journey through time</h2>
+        <p class="muted small">{{ eras_explored }} of {{ era_breakdown|length }} eras explored</p>
+        <ul class="era-bars">
+          {% for era, n, pct in era_breakdown %}
+          <li style="--era: {{ era.color }}"><span class="era-bar-label">{{ era.name }}</span><span class="era-bar"><span style="width: {{ pct }}%"></span></span><span class="era-bar-n">{{ n }}</span></li>
+          {% endfor %}
+        </ul>
+      </section>
+      <section class="side-card">
+        <h2 class="section-label">Ratings</h2>
+        <ol class="hist-bars hist-small">
+          {% for value, n, pct in rating_spread %}<li title="{{ n }} × {{ value|stars }}"><span style="height: {{ pct }}%"></span></li>{% endfor %}
+        </ol>
+        <div class="hist-axis"><span>½</span><span>★★★★★</span></div>
+      </section>
+    </aside>
+  </div>
+</div>
+{% endblock %}

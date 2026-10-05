@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}{{ reading_list.title }} — a reading list by {{ reading_list.user.name }} · Philos{% endblock %}
+{% block description %}{% if reading_list.description %}{{ reading_list.description|truncatechars:150 }}{% else %}{{ items|length }} works of philosophy and history, collected by {{ reading_list.user.name }}.{% endif %}{% endblock %}
+{% block og_title %}{{ reading_list.title }}{% endblock %}
+{% block og_description %}{{ reading_list.description|default:"A reading list on Philos"|truncatechars:200 }}{% endblock %}
+{% block content %}
+<div class="container">
+  <header class="page-header list-header">
+    <p class="eyebrow">{% if reading_list.is_editorial %}Reading path · {% endif %}List by <a href="{{ reading_list.user.get_absolute_url }}">{{ reading_list.user.name }}</a></p>
+    <h1 class="page-title">{{ reading_list.title }}</h1>
+    {% if reading_list.description %}<div class="lead prose">{{ reading_list.description|linebreaks }}</div>{% endif %}
+    <div class="list-actions">
+      <span class="muted">{{ items|length }} work{{ items|length|pluralize }}</span>
+      {% if user.is_authenticated and items %}
+      <span class="progress" title="You've read {{ read_ids|length }} of {{ items|length }}"><span class="progress-bar"><span style="width: {{ read_pct }}%"></span></span> You've read {{ read_ids|length }} · {{ read_pct }}%</span>
+      {% endif %}
+      {% if user.is_authenticated %}
+      <form method="post" action="{% url 'list_like' reading_list.user.username reading_list.slug %}" data-like-form>
+        {% csrf_token %}<button class="btn btn-ghost btn-sm like-btn{% if liked %} is-on{% endif %}" type="submit" aria-pressed="{% if liked %}true{% else %}false{% endif %}">{% icon "heart" 16 %} <span data-like-label>{% if liked %}Liked{% else %}Like{% endif %}</span> <span class="count" data-like-count>{{ reading_list.like_count }}</span></button>
+      </form>
+      {% endif %}
+      <button class="btn btn-ghost btn-sm" type="button" data-share data-title="{{ reading_list.title }}">{% icon "share" 16 %} Share</button>
+      {% if is_owner %}<a class="btn btn-ghost btn-sm" href="{% url 'list_edit' reading_list.user.username reading_list.slug %}">{% icon "pen" 14 %} Edit</a>{% endif %}
+    </div>
+  </header>
+  {% if reading_list.is_ranked or is_owner %}
+  <ol class="list-items{% if reading_list.is_ranked %} ranked{% endif %}">
+    {% for item in items %}
+    <li class="list-item{% if item.work.pk in read_ids %} is-read{% endif %}">
+      {% if reading_list.is_ranked %}<span class="rank">{{ forloop.counter }}</span>{% endif %}
+      {% cover item.work "sm" %}
+      <div class="list-item-body">
+        <h2><a href="{{ item.work.get_absolute_url }}">{{ item.work.title }}</a></h2>
+        <p class="muted small">{{ item.work.author.name }} · {{ item.work.year_display }}{% if item.work.pages %} · ≈{{ item.work.pages }} pages{% endif %}{% if item.work.pk in read_ids %} · <span class="read-label">{% icon "check" 12 %} read</span>{% endif %}</p>
+        <p>{{ item.note|default:item.work.summary }}</p>
+      </div>
+      {% if is_owner %}
+      <div class="list-item-tools">
+        <form method="post" action="{% url 'list_move_item' item.pk %}">{% csrf_token %}<input type="hidden" name="direction" value="up"><button class="icon-btn" type="submit" aria-label="Move up" {% if forloop.first %}disabled{% endif %}>{% icon "arrow-up" 16 %}</button></form>
+        <form method="post" action="{% url 'list_move_item' item.pk %}">{% csrf_token %}<input type="hidden" name="direction" value="down"><button class="icon-btn" type="submit" aria-label="Move down" {% if forloop.last %}disabled{% endif %}>{% icon "arrow-down" 16 %}</button></form>
+        <form method="post" action="{% url 'list_toggle_item' %}">{% csrf_token %}<input type="hidden" name="list" value="{{ reading_list.pk }}"><input type="hidden" name="work" value="{{ item.work.pk }}"><input type="hidden" name="next" value="{{ request.path }}"><button class="icon-btn" type="submit" aria-label="Remove from list">{% icon "trash" 16 %}</button></form>
+      </div>
+      {% endif %}
+    </li>
+    {% empty %}
+    <li class="empty-state">This list is empty.{% if is_owner %} Open any work and use “Add to list…”.{% endif %}</li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <ul class="work-grid">
+    {% for item in items %}<li>{% cover item.work "md" True True %}{% if item.work.pk in read_ids %}<span class="read-dot" title="You've read this">{% icon "check" 12 %}</span>{% endif %}</li>{% endfor %}
+  </ul>
+  {% endif %}
+</div>
+{% endblock %}

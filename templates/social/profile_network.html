@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}{% if tab == 'following' %}Following{% else %}Followers{% endif %} · {{ profile_user.name }} · Philos{% endblock %}
+{% block content %}
+<div class="container">
+  {% include "social/_profile_header.html" %}
+  <h2 class="section-label">{% if tab == 'following' %}Following{% else %}Followers{% endif %}</h2>
+  <div class="chip-grid">
+    {% for m in people %}<a class="member-chip" href="{{ m.get_absolute_url }}">{% avatar m "sm" False %}<span><strong>{{ m.name }}</strong><small>@{{ m.username }} · {{ m.n_read }} read</small></span></a>{% empty %}<p class="empty-state">No one yet.</p>{% endfor %}
+  </div>
+</div>
+{% endblock %}

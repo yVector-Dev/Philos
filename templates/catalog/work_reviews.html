@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}Reviews of {{ work.title }} by {{ work.author.name }} · Philos{% endblock %}
+{% block description %}What readers think of {{ work.title }} by {{ work.author.name }}: {{ page.paginator.count }} reviews on Philos.{% endblock %}
+{% block content %}
+<div class="container narrow">
+  <header class="page-header with-cover">
+    {% cover work "sm" %}
+    <div>
+      <p class="eyebrow">Reviews</p>
+      <h1 class="page-title"><a href="{{ work.get_absolute_url }}">{{ work.title }}</a></h1>
+      <p class="muted">by {{ work.author.name }} · {{ page.paginator.count }} review{{ page.paginator.count|pluralize }}</p>
+    </div>
+  </header>
+  <nav class="tabs" aria-label="Sort reviews">
+    <a href="?sort=popular" {% if sort != 'recent' %}aria-current="page"{% endif %}>Popular</a>
+    <a href="?sort=recent" {% if sort == 'recent' %}aria-current="page"{% endif %}>Recent</a>
+  </nav>
+  <div class="review-list">{% for entry in page.object_list %}{% include "partials/review_card.html" %}{% empty %}<p class="empty-state">No reviews yet.</p>{% endfor %}</div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

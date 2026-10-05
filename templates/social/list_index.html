@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}Reading lists: where to start with philosophy and history · Philos{% endblock %}
+{% block description %}Curated reading paths and community lists: Philosophy 101, the Stoic shelf, existentialism, political philosophy, the great histories and more.{% endblock %}
+{% block content %}
+<div class="container">
+  <header class="page-header">
+    <h1 class="page-title">Lists</h1>
+    <p class="lead">Reading paths, syllabi and arguments in book form. Collect works into lists—and share them.</p>
+    {% if user.is_authenticated %}<a class="btn btn-primary" href="{% url 'list_create' %}">{% icon "plus" 16 %} Start a new list</a>{% endif %}
+  </header>
+  <section class="section">
+    <h2 class="section-label">Reading paths from the editors</h2>
+    <div class="list-grid">{% for rl in editorial %}{% include "partials/list_card.html" %}{% endfor %}</div>
+  </section>
+  {% if popular %}
+  <section class="section">
+    <h2 class="section-label">Popular with the community</h2>
+    <div class="list-grid">{% for rl in popular %}{% include "partials/list_card.html" %}{% endfor %}</div>
+  </section>
+  {% endif %}
+  {% if recent %}
+  <section class="section">
+    <h2 class="section-label">Recently created</h2>
+    <div class="list-grid">{% for rl in recent %}{% include "partials/list_card.html" %}{% endfor %}</div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

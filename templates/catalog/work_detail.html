@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}{{ work.title }} ({{ work.year_display }}) by {{ work.author.name }} — reviews, summary & key ideas · Philos{% endblock %}
+{% block description %}{{ work.summary }} Read reviews, ratings and key ideas of {{ work.title }} by {{ work.author.name }} on Philos.{% endblock %}
+{% block og_type %}book{% endblock %}
+{% block og_title %}{{ work.title }} by {{ work.author.name }}{% endblock %}
+{% block og_description %}{{ work.summary }}{% endblock %}
+{% block head %}{% work_jsonld work %}{% endblock %}
+{% block content %}
+<article class="container work-page">
+  <div class="work-layout">
+    <aside class="work-side">
+      <div class="work-cover-wrap">{% cover work "lg" False %}</div>
+
+      <section class="action-panel" aria-label="Your reading">
+        {% if user.is_authenticated %}
+        <form class="status-row" method="post" action="{% url 'work_status' work.slug %}" data-status-form>
+          {% csrf_token %}
+          <button class="status-btn status-read{% if state.is_read %} is-on{% endif %}" name="action" value="read" data-toggle="is_read" aria-pressed="{% if state.is_read %}true{% else %}false{% endif %}">
+            {% icon "book" 22 %}<span data-label-on="Read" data-label-off="Read it">{% if state.is_read %}Read{% else %}Read it{% endif %}</span>
+          </button>
+          <button class="status-btn status-like{% if state.is_liked %} is-on{% endif %}" name="action" value="like" data-toggle="is_liked" aria-pressed="{% if state.is_liked %}true{% else %}false{% endif %}">
+            {% icon "heart" 22 %}<span data-label-on="Liked" data-label-off="Like">{% if state.is_liked %}Liked{% else %}Like{% endif %}</span>
+          </button>
+          <button class="status-btn status-want{% if state.want_to_read %} is-on{% endif %}" name="action" value="want" data-toggle="want_to_read" aria-pressed="{% if state.want_to_read %}true{% else %}false{% endif %}">
+            {% icon "clock" 22 %}<span data-label-on="On list" data-label-off="To read">{% if state.want_to_read %}On list{% else %}To read{% endif %}</span>
+          </button>
+        </form>
+
+        <form class="rate-form" method="post" action="{% url 'work_status' work.slug %}" data-rate-form>
+          {% csrf_token %}<input type="hidden" name="action" value="rate">
+          <span class="rate-label" data-rate-label>{% if state.rating %}Rated{% else %}Rate{% endif %}</span>
+          <div class="star-input star-input-submit">
+            <div class="stars stars-lg" style="--pct: {% widthratio state.rating|default:0 10 100 %}%" data-rate-display aria-hidden="true"></div>
+            <div class="star-hits">
+              {% for n in "123456789X" %}<button type="submit" name="rating" value="{{ forloop.counter }}" aria-label="Rate {{ forloop.counter|halves }} stars"></button>{% endfor %}
+            </div>
+          </div>
+          {% if state.rating %}<button class="star-clear" type="submit" name="rating" value="0" data-rate-clear>Clear</button>{% endif %}
+        </form>
+
+        <a class="action-link" href="{% url 'log_work' work.slug %}">{% icon "pen" 16 %} Review or log…</a>
+
+        <details class="add-to-list">
+          <summary class="action-link">{% icon "list" 16 %} Add to list…</summary>
+          <div class="add-to-list-panel">
+            {% for rl in my_lists %}
+            <form method="post" action="{% url 'list_toggle_item' %}" data-list-toggle>
+              {% csrf_token %}<input type="hidden" name="list" value="{{ rl.pk }}"><input type="hidden" name="work" value="{{ work.pk }}">
+              <button type="submit" class="list-toggle{% if rl.has_work %} is-on{% endif %}" aria-pressed="{% if rl.has_work %}true{% else %}false{% endif %}">
+                <span class="check">{% icon "check" 14 %}</span> {{ rl.title }}
+              </button>
+            </form>
+            {% empty %}<p class="muted small">You have no lists yet.</p>{% endfor %}
+            <a class="btn btn-ghost btn-sm" href="{% url 'list_create' %}?add={{ work.slug }}">{% icon "plus" 14 %} New list with this work</a>
+          </div>
+        </details>
+        {% else %}
+        <p class="signin-prompt"><a href="{% url 'login' %}?next={{ request.path|urlencode }}">Sign in</a> or <a href="{% url 'signup' %}">join</a> to log, rate and review this work.</p>
+        {% endif %}
+        <button class="action-link share-btn" type="button" data-share data-title="{{ work.title }} by {{ work.author.name }}">{% icon "share" 16 %} Share</button>
+      </section>
+
+      <section class="ratings-panel" aria-labelledby="ratings-h">
+        <div class="ratings-head">
+          <h2 id="ratings-h" class="section-label">Ratings</h2>
+          <span class="muted small" data-stat="rating_count">{{ work.rating_count }} rating{{ work.rating_count|pluralize }}</span>
+        </div>
+        <div class="histogram">
+          <span class="hist-star" aria-hidden="true">★</span>
+          <ol class="hist-bars">
+            {% for value, n, pct in histogram %}<li title="{{ n }} × {{ value|stars }}"><span style="height: {{ pct }}%"></span><b class="visually-hidden">{{ value|halves }} stars: {{ n }}</b></li>{% endfor %}
+          </ol>
+          <span class="hist-avg"><strong data-stat="rating_avg_5">{% if work.rating_avg_5 %}{{ work.rating_avg_5|floatformat:1 }}{% else %}–{% endif %}</strong><span class="hist-five">★★★★★</span></span>
+        </div>
+      </section>
+    </aside>
+
+    <div class="work-main">
+      <header class="work-header">
+        <p class="eyebrow"><a href="{% url 'work_list' %}?era={{ work.era.slug }}">{{ work.era.name }}</a> · {{ work.get_kind_display }}</p>
+        <h1 class="work-title">{{ work.title }}</h1>
+        <p class="work-byline">
+          by <a href="{{ work.author.get_absolute_url }}">{{ work.author.name }}</a>
+          {% if work.year is not None %}<span class="dot">·</span> <span>{{ work.year_display }}</span>{% endif %}
+          {% if work.original_title and work.original_title != work.title %}<span class="dot">·</span> <span class="original" lang="">{{ work.original_title }}</span>{% endif %}
+        </p>
+        <p class="work-summary">{{ work.summary }}</p>
+        <ul class="stat-chips">
+          <li title="Members who have read this">{% icon "book" 15 %} <span data-stat="read_count">{{ work.read_count }}</span> read</li>
+          <li title="Members who liked this">{% icon "heart" 15 %} <span data-stat="like_count">{{ work.like_count }}</span> likes</li>
+          {% if work.pages %}<li title="Typical length">≈ {{ work.pages }} pages</li>{% endif %}
+          <li class="difficulty difficulty-{{ work.difficulty }}" title="How demanding it is to read">Difficulty: {{ work.get_difficulty_display }}</li>
+          {% if work.original_language %}<li>{{ work.original_language }}</li>{% endif %}
+        </ul>
+      </header>
+
+      {% if user.is_authenticated and friends %}
+      <section class="friends-row" aria-label="People you follow who read this">
+        <h2 class="section-label">Read by people you follow</h2>
+        <ul>{% for f in friends %}<li>{% avatar f.user "sm" %}<span class="rating-text small">{{ f.rating|stars }}</span></li>{% endfor %}</ul>
+      </section>
+      {% endif %}
+
+      <section class="work-section prose">
+        <h2 class="section-title">About this work</h2>
+        <p>{{ work.description }}</p>
+      </section>
+
+      {% if work.key_idea_list %}
+      <section class="work-section">
+        <h2 class="section-title">Key ideas</h2>
+        <ol class="key-ideas">{% for idea in work.key_idea_list %}<li>{{ idea }}</li>{% endfor %}</ol>
+      </section>
+      {% endif %}
+
+      <section class="work-section">
+        <div class="tag-row">
+          {% for t in topics %}<a class="tag" href="{{ t.get_absolute_url }}">{{ t.name }}</a>{% endfor %}
+          {% for s in schools %}<a class="tag tag-school" href="{{ s.get_absolute_url }}">{{ s.name }}</a>{% endfor %}
+        </div>
+        {% if work.public_domain %}<p class="free-read">{% icon "external" 15 %} <span>This work is in the public domain. <a href="{{ work.free_text_url }}" rel="noopener" target="_blank">Find a free edition on Project Gutenberg</a>.</span></p>{% endif %}
+      </section>
+
+      {% if quotes %}
+      <section class="work-section">
+        <h2 class="section-title">Quotes</h2>
+        <div class="quote-stack">{% for quote in quotes %}{% include "partials/quote_card.html" %}{% endfor %}</div>
+      </section>
+      {% endif %}
+
+      <section class="work-section" id="reviews">
+        <div class="section-head">
+          <h2 class="section-title">Popular reviews</h2>
+          {% if work.review_count %}<a href="{% url 'work_reviews' work.slug %}">All {{ work.review_count }} review{{ work.review_count|pluralize }} →</a>{% endif %}
+        </div>
+        {% if popular_reviews %}
+          <div class="review-list">{% for entry in popular_reviews %}{% include "partials/review_card.html" %}{% endfor %}</div>
+        {% else %}
+          <div class="empty-state">
+            <p>No reviews yet. What did <em>{{ work.title }}</em> make you think?</p>
+            <a class="btn btn-primary" href="{% url 'log_work' work.slug %}">{% icon "pen" 16 %} Write the first review</a>
+          </div>
+        {% endif %}
+      </section>
+
+      {% if in_lists %}
+      <section class="work-section">
+        <h2 class="section-title">Appears in lists</h2>
+        <div class="list-grid list-grid-2">{% for rl in in_lists %}{% include "partials/list_card.html" with hide_description=True %}{% endfor %}</div>
+      </section>
+      {% endif %}
+
+      {% if more_by_author %}
+      <section class="work-section">
+        <div class="section-head"><h2 class="section-title">More by {{ work.author.name }}</h2><a href="{{ work.author.get_absolute_url }}">About the author →</a></div>
+        <ul class="cover-row cover-row-6">{% for w in more_by_author %}<li>{% cover w "md" True True %}</li>{% endfor %}</ul>
+      </section>
+      {% else %}
+      <section class="work-section author-card">
+        {% thinker_avatar work.author "lg" %}
+        <div><h2 class="section-title"><a href="{{ work.author.get_absolute_url }}">{{ work.author.name }}</a></h2><p class="muted">{{ work.author.lifespan }}</p><p>{{ work.author.tagline }}</p></div>
+      </section>
+      {% endif %}
+
+      {% if similar %}
+      <section class="work-section">
+        <h2 class="section-title">If you liked this</h2>
+        <ul class="cover-row cover-row-6">{% for w in similar %}<li>{% cover w "md" True True %}</li>{% endfor %}</ul>
+      </section>
+      {% endif %}
+    </div>
+  </div>
+</article>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Schools of thought: from Stoicism to Existentialism · Philos{% endblock %}
+{% block description %}A guide to the great schools of philosophy and history—Stoicism, Taoism, Confucianism, Empiricism, Existentialism and more—with their thinkers and key works.{% endblock %}
+{% block content %}
+<div class="container">
+  <header class="page-header">
+    <h1 class="page-title">Schools of thought</h1>
+    <p class="lead">Movements, traditions and families of ideas—arranged by the era in which they began.</p>
+  </header>
+  {% for era in eras %}
+  <section class="section" style="--era: {{ era.color }}">
+    <h2 class="section-title era-heading"><a href="{{ era.get_absolute_url }}">{{ era.name }}</a> <span class="muted small">{{ era.span }}</span></h2>
+    <ul class="school-grid">
+      {% for s in era.schools.all %}
+      <li><a class="school-card" href="{{ s.get_absolute_url }}"><strong>{{ s.name }}</strong><span>{{ s.summary }}</span></a></li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% load static philos %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ SITE_NAME }} — a social network for philosophy and history readers{% endblock %}</title>
+  <meta name="description" content="{% block description %}Track the philosophy and history books you read, rate and review the classics, follow curious readers and build reading lists. Philosophy for everyone.{% endblock %}">
+  <link rel="canonical" href="{% block canonical %}{{ canonical_url }}{% endblock %}">
+  {% block robots %}{% endblock %}
+  <meta property="og:site_name" content="{{ SITE_NAME }}">
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:title" content="{% block og_title %}{{ SITE_NAME }} — read the books that shaped civilization{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}Track, rate and review the great works of philosophy and history. Follow curious readers. Become a little wiser every week.{% endblock %}">
+  <meta property="og:url" content="{{ canonical_url }}">
+  <meta property="og:image" content="{{ SITE_URL }}{% static 'img/og-default.png' %}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e7" media="(prefers-color-scheme: light)">
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="{% static 'css/philos.css' %}">
+  <script>
+    try { var t = localStorage.getItem("philos-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+  {% if PLAUSIBLE_DOMAIN %}<script defer data-domain="{{ PLAUSIBLE_DOMAIN }}" src="https://plausible.io/js/script.js"></script>{% endif %}
+  {% if GA_MEASUREMENT_ID %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ GA_MEASUREMENT_ID }}"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","{{ GA_MEASUREMENT_ID }}");</script>
+  {% endif %}
+  {% jsonld_website %}
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="{% url 'home' %}" aria-label="{{ SITE_NAME }} home">
+        <span class="logo-mark" aria-hidden="true">Φ</span><span class="logo-word">Philos</span>
+      </a>
+      <nav class="main-nav" aria-label="Main">
+        <a href="{% url 'work_list' %}" {% if request.resolver_match.url_name == 'work_list' %}aria-current="page"{% endif %}>Works</a>
+        <a href="{% url 'thinker_list' %}" {% if request.resolver_match.url_name == 'thinker_list' %}aria-current="page"{% endif %}>Thinkers</a>
+        <a href="{% url 'list_index' %}" {% if request.resolver_match.url_name == 'list_index' %}aria-current="page"{% endif %}>Lists</a>
+        <a href="{% url 'timeline' %}" {% if request.resolver_match.url_name == 'timeline' %}aria-current="page"{% endif %}>Timeline</a>
+        <a href="{% url 'quote_list' %}" {% if request.resolver_match.url_name == 'quote_list' %}aria-current="page"{% endif %}>Quotes</a>
+        <a href="{% url 'activity' %}" {% if request.resolver_match.url_name == 'activity' %}aria-current="page"{% endif %}>Activity</a>
+        <a class="nav-search-link" href="{% url 'search' %}">Search</a>
+      </nav>
+      <form class="header-search" action="{% url 'search' %}" method="get" role="search">
+        <label class="visually-hidden" for="header-q">Search</label>
+        <input id="header-q" type="search" name="q" placeholder="Search works, thinkers, people…" value="{{ q|default:'' }}">
+        <button type="submit" aria-label="Search">{% icon "search" 16 %}</button>
+      </form>
+      <div class="header-actions">
+        <button class="icon-btn theme-toggle" type="button" data-theme-toggle aria-label="Toggle light or dark theme">
+          <span class="theme-icon-dark">{% icon "moon" 18 %}</span><span class="theme-icon-light">{% icon "sun" 18 %}</span>
+        </button>
+        {% if user.is_authenticated %}
+          <details class="user-menu">
+            <summary aria-label="Your account">{% avatar user "sm" False %}<span class="user-menu-name">{{ user.name }}</span></summary>
+            <div class="menu-panel">
+              <a href="{% url 'profile' user.username %}">{% icon "user" 16 %} Profile</a>
+              <a href="{% url 'profile_diary' user.username %}">{% icon "calendar" 16 %} Diary</a>
+              <a href="{% url 'profile_to_read' user.username %}">{% icon "clock" 16 %} To read</a>
+              <a href="{% url 'profile_lists' user.username %}">{% icon "list" 16 %} Lists</a>
+              <a href="{% url 'activity' %}">{% icon "feed" 16 %} Activity</a>
+              <a href="{% url 'settings' %}">{% icon "settings" 16 %} Settings</a>
+              <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+                <button type="submit">{% icon "logout" 16 %} Sign out</button>
+              </form>
+            </div>
+          </details>
+        {% else %}
+          <a class="btn btn-ghost btn-sm" href="{% url 'login' %}?next={{ request.path|urlencode }}">Sign in</a>
+          <a class="btn btn-primary btn-sm" href="{% url 'signup' %}">Join</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  {% if messages %}
+  <div class="container messages" role="status">
+    {% for message in messages %}<p class="message message-{{ message.tags }}">{{ message }}</p>{% endfor %}
+  </div>
+  {% endif %}
+
+  <main id="main">{% block content %}{% endblock %}</main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <a class="logo" href="{% url 'home' %}"><span class="logo-mark" aria-hidden="true">Φ</span><span class="logo-word">Philos</span></a>
+        <p>A social network for readers of philosophy and history. Read the books that shaped civilization—and talk about them.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Explore">
+        <h2>Explore</h2>
+        <a href="{% url 'work_list' %}">All works</a>
+        <a href="{% url 'thinker_list' %}">Thinkers</a>
+        <a href="{% url 'school_list' %}">Schools of thought</a>
+        <a href="{% url 'topic_list' %}">Branches of philosophy</a>
+        <a href="{% url 'timeline' %}">Timeline</a>
+      </nav>
+      <nav class="footer-nav" aria-label="Community">
+        <h2>Community</h2>
+        <a href="{% url 'list_index' %}">Reading lists</a>
+        <a href="{% url 'activity' %}">Recent activity</a>
+        <a href="{% url 'members' %}">Members</a>
+        <a href="{% url 'quote_list' %}">Quotes</a>
+        <a href="{% url 'about' %}">About Philos</a>
+      </nav>
+    </div>
+    <div class="container footer-base">
+      <p>© {% now "Y" %} {{ SITE_NAME }}. Know thyself.</p>
+    </div>
+  </footer>
+  <script src="{% static 'js/philos.js' %}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

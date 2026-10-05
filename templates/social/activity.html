@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}Activity · Philos{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<div class="container">
+  <header class="page-header">
+    <h1 class="page-title">Activity</h1>
+    <nav class="tabs" aria-label="Activity scope">
+      {% if user.is_authenticated and following_count %}<a href="?scope=following" {% if scope == 'following' %}aria-current="page"{% endif %}>Following</a>{% endif %}
+      <a href="?scope=everyone" {% if scope == 'everyone' %}aria-current="page"{% endif %}>Everyone</a>
+    </nav>
+  </header>
+  <div class="activity-layout">
+    <ol class="activity-feed">
+      {% for kind, when, obj in items %}
+      <li class="activity-item">
+        {% if kind == "entry" %}
+          {% avatar obj.user "sm" %}
+          <div class="activity-body">
+            <p><a href="{{ obj.user.get_absolute_url }}"><strong>{{ obj.user.name }}</strong></a>
+              {% if obj.has_review %}reviewed{% elif obj.reread %}reread{% else %}read{% endif %}
+              <a href="{{ obj.work.get_absolute_url }}"><em>{{ obj.work.title }}</em></a>
+              {% if obj.rating %}<span class="rating-text">{{ obj.rating|stars }}</span>{% endif %}{% if obj.liked %} <span class="liked-mark">♥</span>{% endif %}
+            </p>
+            {% if obj.has_review %}<a class="activity-snippet" href="{{ obj.get_absolute_url }}">{{ obj.review|truncatewords:40 }}</a>{% endif %}
+            <time class="muted small" datetime="{{ when|date:'c' }}">{{ when|timesince }} ago</time>
+          </div>
+          {% cover obj.work "xs" %}
+        {% else %}
+          {% avatar obj.user "sm" %}
+          <div class="activity-body">
+            <p><a href="{{ obj.user.get_absolute_url }}"><strong>{{ obj.user.name }}</strong></a> created the list <a href="{{ obj.get_absolute_url }}"><em>{{ obj.title }}</em></a> <span class="muted">({{ obj.n }} works)</span></p>
+            <time class="muted small" datetime="{{ when|date:'c' }}">{{ when|timesince }} ago</time>
+          </div>
+        {% endif %}
+      </li>
+      {% empty %}
+      <li class="empty-state">Nothing here yet. Be the first: open a work you've read and log it.</li>
+      {% endfor %}
+    </ol>
+    <aside class="activity-side">
+      {% if suggested %}
+      <section class="side-card">
+        <h2 class="section-label">Readers to follow</h2>
+        {% for m in suggested %}<a class="member-chip" href="{{ m.get_absolute_url }}">{% avatar m "sm" False %}<span><strong>{{ m.name }}</strong><small>{{ m.n_entries }} entr{{ m.n_entries|pluralize:"y,ies" }}</small></span></a>{% endfor %}
+        <p class="small"><a href="{% url 'members' %}">All members →</a></p>
+      </section>
+      {% endif %}
+    </aside>
+  </div>
+</div>
+{% endblock %}

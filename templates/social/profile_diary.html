@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}{{ profile_user.name }}'s reading diary · Philos{% endblock %}
+{% block content %}
+<div class="container">
+  {% include "social/_profile_header.html" %}
+  {% for month, entries in months %}
+  <section class="diary-month">
+    <h2 class="diary-month-title"><span>{{ month|date:"M" }}</span><small>{{ month|date:"Y" }}</small></h2>
+    <ol class="diary-entries">
+      {% for e in entries %}
+      <li class="diary-entry">
+        <span class="diary-day">{% if e.read_on %}{{ e.read_on|date:"j" }}{% else %}{{ e.created_at|date:"j" }}{% endif %}</span>
+        {% cover e.work "xs" %}
+        <span class="diary-work"><a href="{{ e.work.get_absolute_url }}"><strong>{{ e.work.title }}</strong></a> <span class="muted small">{{ e.work.author.name }}</span></span>
+        <span class="rating-text">{{ e.rating|stars }}</span>
+        <span class="diary-flags">{% if e.liked %}<span class="liked-mark" title="Liked">♥</span>{% endif %}{% if e.reread %}<span title="Reread">{% icon "repeat" 14 %}</span>{% endif %}{% if e.has_review %}<a href="{{ e.get_absolute_url }}" title="Read review">{% icon "pen" 14 %}</a>{% endif %}</span>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+  {% empty %}
+  <p class="empty-state">No diary entries yet.{% if user == profile_user %} Use “Review or log…” on any work to add one.{% endif %}</p>
+  {% endfor %}
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

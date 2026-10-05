@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}{% if q %}“{{ q }}” — Search{% else %}Search{% endif %} · Philos{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<div class="container">
+  <header class="page-header">
+    <h1 class="page-title">Search</h1>
+    <form class="search-big" action="{% url 'search' %}" method="get" role="search">
+      <input type="search" name="q" value="{{ q }}" placeholder="Plato, stoicism, justice, meditations…" autofocus aria-label="Search">
+      <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+  </header>
+  {% if q %}
+    {% if not total %}<p class="empty-state">Nothing found for “{{ q }}”. Try a thinker's name or a book title.</p>{% endif %}
+    {% if works %}<section class="section"><h2 class="section-label">Works</h2>{% include "partials/work_grid.html" %}</section>{% endif %}
+    {% if thinkers %}<section class="section"><h2 class="section-label">Thinkers</h2><div class="chip-grid">{% for thinker in thinkers %}{% include "partials/thinker_chip.html" %}{% endfor %}</div></section>{% endif %}
+    {% if schools %}<section class="section"><h2 class="section-label">Schools of thought</h2><div class="tag-row">{% for s in schools %}<a class="tag" href="{{ s.get_absolute_url }}">{{ s.name }}</a>{% endfor %}</div></section>{% endif %}
+    {% if quotes %}<section class="section"><h2 class="section-label">Quotes</h2><div class="quote-grid">{% for quote in quotes %}{% include "partials/quote_card.html" %}{% endfor %}</div></section>{% endif %}
+    {% if lists %}<section class="section"><h2 class="section-label">Lists</h2><ul class="plain-list">{% for rl in lists %}<li><a href="{{ rl.get_absolute_url }}">{{ rl.title }}</a> <span class="muted">by {{ rl.user.name }}</span></li>{% endfor %}</ul></section>{% endif %}
+    {% if members %}<section class="section"><h2 class="section-label">Members</h2><div class="chip-grid">{% for m in members %}<a class="member-chip" href="{{ m.get_absolute_url }}">{% avatar m "sm" False %}<span><strong>{{ m.name }}</strong><small>@{{ m.username }}</small></span></a>{% endfor %}</div></section>{% endif %}
+  {% endif %}
+</div>
+{% endblock %}

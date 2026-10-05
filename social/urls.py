@@ -1,0 +1,36 @@
+from django.urls import path
+
+from . import views
+
+urlpatterns = [
+    path("works/<slug:slug>/status/", views.work_status, name="work_status"),
+    path("works/<slug:slug>/log/", views.log_work, name="log_work"),
+    path("activity/", views.activity, name="activity"),
+    path("members/", views.members, name="members"),
+    path("lists/", views.list_index, name="list_index"),
+    path("lists/new/", views.list_create, name="list_create"),
+    path("lists/toggle-item/", views.list_toggle_item, name="list_toggle_item"),
+    path("lists/items/<int:pk>/move/", views.list_move_item, name="list_move_item"),
+    path("comments/<int:pk>/delete/", views.comment_delete, name="comment_delete"),
+    path("u/<str:username>/", views.profile, name="profile"),
+    path("u/<str:username>/diary/", views.profile_diary, name="profile_diary"),
+    path("u/<str:username>/reviews/", views.profile_reviews, name="profile_reviews"),
+    path("u/<str:username>/read/", views.profile_works, name="profile_works"),
+    path("u/<str:username>/to-read/", views.profile_to_read, name="profile_to_read"),
+    path("u/<str:username>/likes/", views.profile_likes, name="profile_likes"),
+    path("u/<str:username>/lists/", views.profile_lists, name="profile_lists"),
+    path("u/<str:username>/following/", views.profile_network, {"direction": "following"},
+         name="profile_following"),
+    path("u/<str:username>/followers/", views.profile_network, {"direction": "followers"},
+         name="profile_followers"),
+    path("u/<str:username>/follow/", views.follow_toggle, name="follow_toggle"),
+    path("u/<str:username>/review/<int:pk>/", views.review_detail, name="review_detail"),
+    path("u/<str:username>/review/<int:pk>/edit/", views.review_edit, name="review_edit"),
+    path("u/<str:username>/review/<int:pk>/delete/", views.review_delete, name="review_delete"),
+    path("u/<str:username>/review/<int:pk>/like/", views.review_like, name="review_like"),
+    path("u/<str:username>/review/<int:pk>/comment/", views.comment_create, name="comment_create"),
+    path("u/<str:username>/lists/<slug:slug>/", views.list_detail, name="list_detail"),
+    path("u/<str:username>/lists/<slug:slug>/edit/", views.list_edit, name="list_edit"),
+    path("u/<str:username>/lists/<slug:slug>/delete/", views.list_delete, name="list_delete"),
+    path("u/<str:username>/lists/<slug:slug>/like/", views.list_like, name="list_like"),
+]

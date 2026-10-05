@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}{% if selected_era %}{{ selected_era.name }} thinkers{% else %}Great thinkers: philosophers and historians from Confucius to today{% endif %} · Philos{% endblock %}
+{% block description %}Meet {{ thinkers|length }} philosophers and historians{% if selected_era %} of the {{ selected_era.name }}{% endif %}: their lives, their key works and the ideas that connect them.{% endblock %}
+{% block content %}
+<div class="container">
+  <header class="page-header">
+    <h1 class="page-title">Thinkers</h1>
+    <p class="muted">{{ thinkers|length }} philosophers and historians{% if selected_era %} of the {{ selected_era.name }} · <a href="{% url 'thinker_list' %}">show all</a>{% endif %}</p>
+  </header>
+  <nav class="tabs tabs-scroll" aria-label="Filter by era">
+    <a href="{% url 'thinker_list' %}" {% if not selected_era %}aria-current="page"{% endif %}>All eras</a>
+    {% for e in eras %}<a href="?era={{ e.slug }}" style="--era: {{ e.color }}" class="era-tab" {% if selected_era == e %}aria-current="page"{% endif %}>{{ e.name }}</a>{% endfor %}
+  </nav>
+  <ul class="thinker-grid">
+    {% for t in thinkers %}
+    <li>
+      <a class="thinker-card" href="{{ t.get_absolute_url }}" style="--era: {{ t.era.color }}">
+        {% thinker_avatar t "md" %}
+        <span class="thinker-card-body">
+          <strong>{{ t.name }}</strong>
+          <small>{{ t.lifespan }}</small>
+          <span class="thinker-card-tag">{{ t.tagline }}</span>
+          <span class="muted small">{{ t.n_works }} work{{ t.n_works|pluralize }}</span>
+        </span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

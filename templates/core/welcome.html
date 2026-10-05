@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}Welcome to Philos{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<div class="container narrow-wide">
+  <header class="page-header">
+    <p class="eyebrow">Step 1 of 2</p>
+    <h1 class="page-title">What have you already read?</h1>
+    <p class="lead">Tap the books you've read, even partly. It builds your profile and helps us suggest your next great read. You can always change this later.</p>
+  </header>
+  <ul class="welcome-grid">
+    {% for work in works %}{% with st=states|get_item:work.pk %}
+    <li>
+      {% cover work "md" False %}
+      <form method="post" action="{% url 'work_status' work.slug %}" data-status-form>
+        {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
+        <button class="toggle-read{% if st.is_read %} is-on{% endif %}" name="action" value="read" aria-pressed="{% if st.is_read %}true{% else %}false{% endif %}" data-toggle="is_read">
+          {% icon "check" 14 %} <span>{{ work.title|truncatechars:34 }}</span>
+        </button>
+      </form>
+    </li>
+    {% endwith %}{% endfor %}
+  </ul>
+  <section class="section">
+    <p class="eyebrow">Step 2 of 2</p>
+    <h2 class="section-title">Pick a reading path</h2>
+    <div class="list-grid">
+      {% for rl in lists %}{% include "partials/list_card.html" %}{% endfor %}
+    </div>
+  </section>
+  <div class="welcome-done">
+    <a class="btn btn-primary btn-lg" href="{% url 'profile' user.username %}">Go to my profile →</a>
+  </div>
+</div>
+{% endblock %}

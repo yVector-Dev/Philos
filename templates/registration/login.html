@@ -1,0 +1,13 @@
+{% extends "registration/_auth_base.html" %}
+{% block title %}Sign in · Philos{% endblock %}
+{% block form %}
+<h1 class="form-title">Welcome back</h1>
+<form method="post">
+  {% csrf_token %}
+  {% if form.errors %}<p class="form-errors">Your username and password didn't match. Please try again.</p>{% endif %}
+  <input type="hidden" name="next" value="{{ next }}">
+  {% for field in form %}{% include "registration/_field.html" %}{% endfor %}
+  <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+</form>
+<p class="small muted"><a href="{% url 'password_reset' %}">Forgot your password?</a> · New here? <a href="{% url 'signup' %}">Create an account</a></p>
+{% endblock %}

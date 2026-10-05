@@ -1,0 +1,1 @@
+{% if link %}<a href="{{ u.get_absolute_url }}" class="avatar avatar-{{ size }}" style="--hue: {{ u.avatar_hue }}" title="{{ u.name }}" aria-label="{{ u.name }}"><span aria-hidden="true">{{ u.initials }}</span></a>{% else %}<span class="avatar avatar-{{ size }}" style="--hue: {{ u.avatar_hue }}" aria-hidden="true"><span>{{ u.initials }}</span></span>{% endif %}

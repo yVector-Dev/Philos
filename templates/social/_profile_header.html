@@ -1,0 +1,38 @@
+{% load philos %}<header class="profile-header">
+  <div class="profile-id">
+    {% avatar profile_user "xl" False %}
+    <div>
+      <h1 class="page-title">{{ profile_user.name }}</h1>
+      <p class="muted">@{{ profile_user.username }}{% if profile_user.location %} · {% icon "map" 14 %} {{ profile_user.location }}{% endif %}{% if profile_user.website %} · <a href="{{ profile_user.website }}" rel="nofollow noopener ugc" target="_blank">{{ profile_user.website|cut:"https://"|cut:"http://"|truncatechars:32 }}</a>{% endif %}</p>
+      {% if profile_user.bio %}<p class="profile-bio">{{ profile_user.bio }}</p>{% endif %}
+      <div class="profile-buttons">
+        {% if user == profile_user %}
+          <a class="btn btn-ghost btn-sm" href="{% url 'settings' %}">{% icon "settings" 14 %} Edit profile</a>
+        {% elif user.is_authenticated %}
+          <form method="post" action="{% url 'follow_toggle' profile_user.username %}" data-follow-form>
+            {% csrf_token %}
+            <button class="btn btn-sm {% if is_following %}btn-ghost{% else %}btn-primary{% endif %}" type="submit" data-follow-btn aria-pressed="{% if is_following %}true{% else %}false{% endif %}">{% if is_following %}Following{% else %}Follow{% endif %}</button>
+          </form>
+        {% else %}
+          <a class="btn btn-primary btn-sm" href="{% url 'login' %}?next={{ request.path|urlencode }}">Follow</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <dl class="profile-stats">
+    <div><dt>Works</dt><dd><a href="{% url 'profile_works' profile_user.username %}">{{ stats.read }}</a></dd></div>
+    <div><dt>This year</dt><dd><a href="{% url 'profile_diary' profile_user.username %}">{{ stats.this_year }}</a></dd></div>
+    <div><dt>Lists</dt><dd><a href="{% url 'profile_lists' profile_user.username %}">{{ stats.lists }}</a></dd></div>
+    <div><dt>Following</dt><dd><a href="{% url 'profile_following' profile_user.username %}">{{ stats.following }}</a></dd></div>
+    <div><dt>Followers</dt><dd><a href="{% url 'profile_followers' profile_user.username %}" data-followers>{{ stats.followers }}</a></dd></div>
+  </dl>
+</header>
+<nav class="tabs tabs-scroll" aria-label="Profile sections">
+  <a href="{% url 'profile' profile_user.username %}" {% if tab == 'profile' %}aria-current="page"{% endif %}>Profile</a>
+  <a href="{% url 'profile_diary' profile_user.username %}" {% if tab == 'diary' %}aria-current="page"{% endif %}>Diary</a>
+  <a href="{% url 'profile_reviews' profile_user.username %}" {% if tab == 'reviews' %}aria-current="page"{% endif %}>Reviews <span class="count">{{ stats.reviews }}</span></a>
+  <a href="{% url 'profile_works' profile_user.username %}" {% if tab == 'works' %}aria-current="page"{% endif %}>Read</a>
+  <a href="{% url 'profile_to_read' profile_user.username %}" {% if tab == 'to-read' %}aria-current="page"{% endif %}>To read</a>
+  <a href="{% url 'profile_lists' profile_user.username %}" {% if tab == 'lists' %}aria-current="page"{% endif %}>Lists</a>
+  <a href="{% url 'profile_likes' profile_user.username %}" {% if tab == 'likes' %}aria-current="page"{% endif %}>Likes</a>
+</nav>

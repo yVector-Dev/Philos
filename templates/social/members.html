@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}Members · Philos{% endblock %}
+{% block content %}
+<div class="container">
+  <header class="page-header">
+    <h1 class="page-title">Members</h1>
+    <p class="lead">Readers on Philos, ordered by how much they've reviewed. Follow people whose taste you trust.</p>
+  </header>
+  <div class="member-grid">
+    {% for m in page.object_list %}
+    <a class="member-card" href="{{ m.get_absolute_url }}">{% avatar m "lg" False %}<strong>{{ m.name }}</strong><small class="muted">@{{ m.username }}</small><span class="small">{{ m.n_read }} read · {{ m.n_reviews }} review{{ m.n_reviews|pluralize }}</span></a>
+    {% empty %}<p class="empty-state">No active members yet. <a href="{% url 'signup' %}">Be the first.</a></p>{% endfor %}
+  </div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

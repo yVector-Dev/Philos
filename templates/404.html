@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Not found · Philos{% endblock %}
+{% block content %}
+<div class="container prose-page center">
+  <p class="eyebrow">404</p>
+  <h1 class="page-title">“I know that I know nothing.”</h1>
+  <p class="lead">Neither do we, about this page. It may have moved, or never existed.</p>
+  <p><a class="btn btn-primary" href="{% url 'home' %}">Back to the agora</a> <a class="btn btn-ghost" href="{% url 'work_list' %}">Browse works</a></p>
+</div>
+{% endblock %}

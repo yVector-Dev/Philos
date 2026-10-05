@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}{{ entry.user.name }}'s review of {{ entry.work.title }}{% if entry.rating %} ({{ entry.rating|stars }}){% endif %} · Philos{% endblock %}
+{% block description %}{{ entry.review|truncatechars:155 }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ entry.user.name }} on {{ entry.work.title }} by {{ entry.work.author.name }}{% endblock %}
+{% block og_description %}{{ entry.review|truncatechars:200 }}{% endblock %}
+{% block robots %}{% if not entry.has_review %}<meta name="robots" content="noindex">{% endif %}{% endblock %}
+{% block head %}{% if entry.has_review %}{% review_jsonld entry %}{% endif %}{% endblock %}
+{% block content %}
+<article class="container review-page">
+  <div class="review-layout">
+    <aside class="review-side">{% cover entry.work "md" %}</aside>
+    <div class="review-main">
+      <header class="review-page-head">
+        <p class="review-by">{% avatar entry.user "sm" %} Review by <a href="{{ entry.user.get_absolute_url }}">{{ entry.user.name }}</a></p>
+        <h1 class="work-title"><a href="{{ entry.work.get_absolute_url }}">{{ entry.work.title }}</a> <span class="muted">{{ entry.work.year_display }}</span></h1>
+        <p class="muted">by <a href="{{ entry.work.author.get_absolute_url }}">{{ entry.work.author.name }}</a></p>
+        <p class="review-meta">
+          {% if entry.rating %}<span class="rating-text large" title="{{ entry.rating|stars_label }}">{{ entry.rating|stars }}</span>{% endif %}
+          {% if entry.liked %}<span class="liked-mark">♥</span>{% endif %}
+          {% if entry.reread %}<span title="Reread">{% icon "repeat" 16 %}</span>{% endif %}
+          <span class="muted small">{% if entry.read_on %}{% if entry.reread %}Reread{% else %}Read{% endif %} {{ entry.read_on|date:"j M Y" }}{% else %}Logged {{ entry.created_at|date:"j M Y" }}{% endif %}</span>
+        </p>
+      </header>
+      {% if entry.has_review %}<div class="review-full prose">{{ entry.review|linebreaks }}</div>{% else %}<p class="muted">No review written—just a diary entry.</p>{% endif %}
+      <footer class="review-actions">
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'review_like' entry.user.username entry.pk %}" data-like-form>
+          {% csrf_token %}
+          <button class="btn btn-ghost btn-sm like-btn{% if liked %} is-on{% endif %}" type="submit" aria-pressed="{% if liked %}true{% else %}false{% endif %}">{% icon "heart" 16 %} <span data-like-label>{% if liked %}Liked{% else %}Like review{% endif %}</span> <span class="count" data-like-count>{{ entry.like_count }}</span></button>
+        </form>
+        {% else %}<span class="muted small">{% icon "heart" 14 %} {{ entry.like_count }} like{{ entry.like_count|pluralize }}</span>{% endif %}
+        <button class="btn btn-ghost btn-sm" type="button" data-share data-title="{{ entry.user.name }} on {{ entry.work.title }}">{% icon "share" 16 %} Share</button>
+        {% if user == entry.user %}<a class="btn btn-ghost btn-sm" href="{% url 'review_edit' entry.user.username entry.pk %}">{% icon "pen" 16 %} Edit</a>{% endif %}
+      </footer>
+
+      <section class="comments" id="comments">
+        <h2 class="section-label">{{ comments|length }} repl{{ comments|length|pluralize:"y,ies" }}</h2>
+        {% for c in comments %}
+        <div class="comment">
+          {% avatar c.user "xs" %}
+          <div class="comment-body">
+            <p class="comment-head"><a href="{{ c.user.get_absolute_url }}">{{ c.user.name }}</a> <time class="muted small" datetime="{{ c.created_at|date:'c' }}">{{ c.created_at|timesince }} ago</time></p>
+            {{ c.body|linebreaks }}
+            {% if user == c.user or user == entry.user %}
+            <form method="post" action="{% url 'comment_delete' c.pk %}" data-confirm="Delete this reply?">{% csrf_token %}<button class="link-btn small" type="submit">Delete</button></form>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+        {% if user.is_authenticated %}
+        <form class="comment-form" method="post" action="{% url 'comment_create' entry.user.username entry.pk %}">
+          {% csrf_token %}
+          <label class="visually-hidden" for="id_body">Reply</label>
+          {{ comment_form.body }}
+          <button class="btn btn-primary btn-sm" type="submit">Post reply</button>
+        </form>
+        {% else %}
+        <p class="muted small"><a href="{% url 'login' %}?next={{ request.path|urlencode }}">Sign in</a> to reply.</p>
+        {% endif %}
+      </section>
+
+      {% if more_reviews %}
+      <section class="section">
+        <h2 class="section-label">More reviews of {{ entry.work.title }}</h2>
+        <div class="review-list">{% for entry in more_reviews %}{% include "partials/review_card.html" %}{% endfor %}</div>
+      </section>
+      {% endif %}
+    </div>
+  </div>
+</article>
+{% endblock %}

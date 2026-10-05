@@ -1,0 +1,20 @@
+{% load philos %}<article class="review-card{% if compact %} review-compact{% endif %}">
+  {% if show_work %}<div class="review-cover">{% cover entry.work "sm" %}</div>{% endif %}
+  <div class="review-body">
+    <header class="review-head">
+      {% avatar entry.user "xs" %}
+      <span class="review-by">Review by <a href="{{ entry.user.get_absolute_url }}">{{ entry.user.name }}</a></span>
+      {% if entry.rating %}<span class="rating-text" title="{{ entry.rating|stars_label }}">{{ entry.rating|stars }}</span>{% endif %}
+      {% if entry.liked %}<span class="liked-mark" title="Liked">♥</span>{% endif %}
+      {% if entry.reread %}<span class="reread-mark" title="Reread">{% icon "repeat" 14 %}</span>{% endif %}
+    </header>
+    {% if show_work %}<h3 class="review-work"><a href="{{ entry.work.get_absolute_url }}">{{ entry.work.title }}</a> <span class="muted">{{ entry.work.year_display }}</span></h3>{% endif %}
+    <div class="review-text{% if not full %} clamp{% endif %}">{{ entry.review|linebreaks }}</div>
+    <footer class="review-foot">
+      <a href="{{ entry.get_absolute_url }}">{% if not full %}Read review{% else %}Permalink{% endif %}</a>
+      <span>{% icon "heart" 14 %} {{ entry.like_count }}</span>
+      <span>{% icon "comment" 14 %} {{ entry.comment_count }}</span>
+      <time datetime="{{ entry.created_at|date:'c' }}">{{ entry.created_at|timesince }} ago</time>
+    </footer>
+  </div>
+</article>

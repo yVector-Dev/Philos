@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}Timeline of philosophy and history: {{ count }} thinkers across 2,500 years · Philos{% endblock %}
+{% block description %}An interactive timeline of {{ count }} philosophers and historians, from Laozi, the Buddha and Socrates to Arendt, Rawls and Harari.{% endblock %}
+{% block content %}
+<div class="container">
+  <header class="page-header">
+    <h1 class="page-title">Timeline</h1>
+    <p class="lead">{{ count }} thinkers across 2,500 years of ideas. Each name links to their life, works and influences.</p>
+    <nav class="tabs tabs-scroll" aria-label="Jump to era">
+      {% for era, thinkers in eras %}<a href="#{{ era.slug }}" class="era-tab" style="--era: {{ era.color }}">{{ era.name }}</a>{% endfor %}
+    </nav>
+  </header>
+  <ol class="timeline">
+    {% for era, thinkers in eras %}
+    <li class="timeline-era" id="{{ era.slug }}" style="--era: {{ era.color }}">
+      <div class="timeline-era-head">
+        <h2><a href="{{ era.get_absolute_url }}">{{ era.name }}</a></h2>
+        <span class="muted small">{{ era.span }}</span>
+        <p class="muted">{{ era.summary }}</p>
+      </div>
+      <ol class="timeline-items">
+        {% for t in thinkers %}
+        <li>
+          <span class="timeline-year">{% if t.birth_year is not None %}{{ t.birth_year|year:t.years_approx }}{% endif %}</span>
+          <a href="{{ t.get_absolute_url }}" class="timeline-card">
+            {% thinker_avatar t "sm" %}
+            <span><strong>{{ t.name }}</strong><small>{{ t.tagline }}</small></span>
+          </a>
+        </li>
+        {% endfor %}
+      </ol>
+    </li>
+    {% endfor %}
+  </ol>
+</div>
+{% endblock %}

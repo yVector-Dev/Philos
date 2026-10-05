@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Settings · Philos{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<div class="container narrow">
+  <h1 class="page-title">Settings</h1>
+  <form method="post" class="settings-form">
+    {% csrf_token %}
+    <section class="card form-card">
+      <h2 class="section-title">Profile</h2>
+      {% for field in profile_form %}{% include "registration/_field.html" %}{% endfor %}
+    </section>
+    <section class="card form-card">
+      <h2 class="section-title">Favourite works</h2>
+      <p class="muted small">Up to four works pinned to the top of your profile.</p>
+      <div class="fav-grid">{% for field in favorites_form %}{% include "registration/_field.html" %}{% endfor %}</div>
+    </section>
+    <div class="form-actions"><button class="btn btn-primary" type="submit">Save settings</button> <a class="btn btn-ghost" href="{% url 'password_change' %}">Change password</a></div>
+  </form>
+</div>
+{% endblock %}

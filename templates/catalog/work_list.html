@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}{% if filters.topic %}{{ filters.topic.name }} books{% elif filters.school %}{{ filters.school.name }} books{% elif filters.era %}{{ filters.era.name }} philosophy & history books{% else %}Browse the great works of philosophy and history{% endif %} · Philos{% endblock %}
+{% block description %}Browse {{ page.paginator.count }} great works of philosophy and history{% if filters.era %} from the {{ filters.era.name }}{% endif %}{% if filters.topic %} on {{ filters.topic.name|lower }}{% endif %}. Ratings, reviews and key ideas from the Philos community.{% endblock %}
+{% block content %}
+<div class="container">
+  <header class="page-header">
+    <h1 class="page-title">{% if filters.topic %}{{ filters.topic.name }}{% elif filters.school %}{{ filters.school.name }}{% elif filters.era %}{{ filters.era.name }}{% else %}Works{% endif %}</h1>
+    <p class="muted">{{ page.paginator.count }} work{{ page.paginator.count|pluralize }}{% if filters %} matching your filters · <a href="{% url 'work_list' %}">clear all</a>{% endif %}</p>
+  </header>
+
+  <form class="filter-bar" method="get" action="{% url 'work_list' %}" data-autosubmit>
+    <label><span>Era</span>
+      <select name="era"><option value="">Any era</option>{% for e in eras %}<option value="{{ e.slug }}" {% if filters.era == e %}selected{% endif %}>{{ e.name }}</option>{% endfor %}</select>
+    </label>
+    <label><span>Branch</span>
+      <select name="topic"><option value="">Any branch</option>{% for t in topics %}<option value="{{ t.slug }}" {% if filters.topic == t %}selected{% endif %}>{{ t.name }}</option>{% endfor %}</select>
+    </label>
+    <label><span>School</span>
+      <select name="school"><option value="">Any school</option>{% for s in schools %}<option value="{{ s.slug }}" {% if filters.school == s %}selected{% endif %}>{{ s.name }}</option>{% endfor %}</select>
+    </label>
+    <label><span>Difficulty</span>
+      <select name="difficulty"><option value="">Any</option><option value="1" {% if filters.difficulty == 1 %}selected{% endif %}>Gentle only</option><option value="2" {% if filters.difficulty == 2 %}selected{% endif %}>Approachable or easier</option><option value="3" {% if filters.difficulty == 3 %}selected{% endif %}>Demanding or easier</option></select>
+    </label>
+    <label><span>Sort</span>
+      <select name="sort">{% for key, label in sorts.items %}<option value="{{ key }}" {% if sort == key %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    </label>
+    <label class="check"><input type="checkbox" name="free" value="1" {% if filters.free %}checked{% endif %}> <span>Free to read</span></label>
+    <noscript><button class="btn btn-primary btn-sm" type="submit">Apply</button></noscript>
+  </form>
+
+  {% include "partials/work_grid.html" with works=page.object_list empty="No works match these filters." %}
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

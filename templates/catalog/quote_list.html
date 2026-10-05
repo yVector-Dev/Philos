@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ quotes|length }} famous philosophy quotes, with their sources · Philos{% endblock %}
+{% block description %}The most famous quotes in philosophy and history—from Socrates, Confucius, Marcus Aurelius, Nietzsche, Camus and more—each with its source.{% endblock %}
+{% block content %}
+<div class="container">
+  <header class="page-header">
+    <h1 class="page-title">Quotes</h1>
+    <p class="lead">Famous lines from 2,500 years of thinking—with their sources, so you can read them in context.</p>
+  </header>
+  <div class="quote-grid">{% for quote in quotes %}{% include "partials/quote_card.html" %}{% endfor %}</div>
+</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block body_class %}page-home{% endblock %}
+{% block content %}
+
+{% if not user.is_authenticated %}
+<section class="hero">
+  <div class="hero-mosaic" aria-hidden="true">
+    {% for work in hero_works %}{% cover work "md" False %}{% endfor %}
+  </div>
+  <div class="container hero-inner">
+    <p class="eyebrow">A social network for curious minds</p>
+    <h1 class="hero-title">Read the books that shaped civilization.</h1>
+    <p class="hero-lead">Track the philosophy and history you read. Rate and review the classics, from Confucius to Camus. Follow thoughtful readers, build reading lists, and get a little wiser every week.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary btn-lg" href="{% url 'signup' %}">Start your library — it's free</a>
+      <a class="btn btn-ghost btn-lg" href="{% url 'list_index' %}">Browse reading paths</a>
+    </div>
+    <p class="hero-stats">{{ counts.works }} great works · {{ counts.thinkers }} thinkers · 2,500 years of ideas</p>
+  </div>
+</section>
+{% else %}
+<section class="container welcome-back">
+  <h1 class="page-title">Welcome back, {{ user.name }}.</h1>
+  <p class="muted">Here's what's happening in the world of ideas.</p>
+</section>
+{% endif %}
+
+<div class="container home-grid">
+  {% if quote %}
+  <section class="section section-quote" aria-labelledby="qotd">
+    <h2 id="qotd" class="section-label">Thought for today</h2>
+    {% include "partials/quote_card.html" with quote=quote large=True %}
+  </section>
+  {% endif %}
+
+  {% if user.is_authenticated and friends_activity %}
+  <section class="section" aria-labelledby="friends">
+    <div class="section-head"><h2 id="friends" class="section-label">New from people you follow</h2><a href="{% url 'activity' %}">All activity →</a></div>
+    <ul class="activity-strip">
+      {% for e in friends_activity %}
+      <li>{% cover e.work "md" True False e.rating %}<span class="strip-by">{% avatar e.user "xs" %} {{ e.user.name }}</span></li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <section class="section" aria-labelledby="popular">
+    <div class="section-head"><h2 id="popular" class="section-label">Popular this week</h2><a href="{% url 'work_list' %}">Browse all works →</a></div>
+    <ul class="cover-row">
+      {% for work in popular %}<li>{% cover work "md" True True %}</li>{% endfor %}
+    </ul>
+  </section>
+
+  {% if user.is_authenticated and to_read %}
+  <section class="section" aria-labelledby="toread">
+    <div class="section-head"><h2 id="toread" class="section-label">On your reading list</h2><a href="{% url 'profile_to_read' user.username %}">See all →</a></div>
+    <ul class="cover-row cover-row-6">
+      {% for st in to_read %}<li>{% cover st.work "md" True True %}</li>{% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <section class="section" aria-labelledby="paths">
+    <div class="section-head"><h2 id="paths" class="section-label">Start here: reading paths</h2><a href="{% url 'list_index' %}">All lists →</a></div>
+    <div class="list-grid">
+      {% for rl in editorial_lists %}{% include "partials/list_card.html" %}{% endfor %}
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="eras">
+    <div class="section-head"><h2 id="eras" class="section-label">Journey through 2,500 years</h2><a href="{% url 'timeline' %}">Open the timeline →</a></div>
+    <ol class="era-strip">
+      {% for era in eras %}
+      <li style="--era: {{ era.color }}">
+        <a href="{{ era.get_absolute_url }}">
+          <span class="era-span">{{ era.span }}</span>
+          <strong>{{ era.name }}</strong>
+          <span class="era-summary">{{ era.summary }}</span>
+          <span class="era-counts">{{ era.n_thinkers }} thinkers · {{ era.n_works }} works</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <section class="section" aria-labelledby="reviews">
+    <div class="section-head"><h2 id="reviews" class="section-label">{% if popular_reviews %}Popular reviews{% else %}Recent reviews{% endif %}</h2><a href="{% url 'activity' %}?scope=everyone">More →</a></div>
+    {% with reviews=popular_reviews|default:recent_reviews %}
+    {% if reviews %}
+    <div class="review-list">
+      {% for entry in reviews %}{% include "partials/review_card.html" with show_work=True %}{% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p>No reviews yet. The first reviewer of Plato's <em>Republic</em> on Philos could be you.</p>
+      <a class="btn btn-primary" href="{% url 'work_detail' 'republic' %}">Review The Republic</a>
+    </div>
+    {% endif %}
+    {% endwith %}
+  </section>
+
+  <section class="section" aria-labelledby="branches">
+    <div class="section-head"><h2 id="branches" class="section-label">The big questions</h2><a href="{% url 'topic_list' %}">All branches →</a></div>
+    <ul class="question-grid">
+      {% for topic in topics %}
+      <li><a href="{{ topic.get_absolute_url }}"><span class="question">{{ topic.question }}</span><span class="question-topic">{{ topic.name }}</span></a></li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  {% if not user.is_authenticated %}
+  <section class="section cta-band">
+    <h2>Become a little wiser every week.</h2>
+    <p>Keep a diary of what you read, rate the classics, and discover your next great book through people who think.</p>
+    <a class="btn btn-primary btn-lg" href="{% url 'signup' %}">Create your free account</a>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}{{ thinker.name }} ({{ thinker.lifespan }}) — life, works, ideas & quotes · Philos{% endblock %}
+{% block description %}{{ thinker.tagline }} Read about {{ thinker.name }}'s life, key works, influences and most famous quotes on Philos.{% endblock %}
+{% block og_type %}profile{% endblock %}
+{% block og_title %}{{ thinker.name }} — {{ thinker.tagline }}{% endblock %}
+{% block og_description %}{{ thinker.bio|truncatewords:40 }}{% endblock %}
+{% block head %}{% thinker_jsonld thinker %}{% endblock %}
+{% block content %}
+<article class="container thinker-page" style="--era: {{ thinker.era.color }}">
+  <header class="thinker-hero">
+    {% thinker_avatar thinker "xl" %}
+    <div>
+      <p class="eyebrow"><a href="{{ thinker.era.get_absolute_url }}">{{ thinker.era.name }}</a></p>
+      <h1 class="page-title">{{ thinker.name }}</h1>
+      <p class="thinker-meta">{{ thinker.lifespan }}{% if thinker.birthplace %} · born in {{ thinker.birthplace }}{% endif %}</p>
+      <p class="lead">{{ thinker.tagline }}</p>
+      <div class="tag-row">
+        {% for s in schools %}<a class="tag tag-school" href="{{ s.get_absolute_url }}">{{ s.name }}</a>{% endfor %}
+        {% for t in topics %}<a class="tag" href="{{ t.get_absolute_url }}">{{ t.name }}</a>{% endfor %}
+      </div>
+    </div>
+  </header>
+
+  <div class="thinker-layout">
+    <div class="thinker-main">
+      <section class="work-section prose">
+        <h2 class="section-title">Life</h2>
+        <p>{{ thinker.bio }}</p>
+        <p class="small"><a href="{{ thinker.wikipedia_url }}" rel="noopener" target="_blank">{% icon "external" 14 %} Further reading on Wikipedia</a></p>
+      </section>
+
+      <section class="work-section">
+        <h2 class="section-title">Works on Philos</h2>
+        {% include "partials/work_grid.html" with works=works empty="No works catalogued yet." %}
+        {% if readers %}<p class="muted small">{{ readers }} member{{ readers|pluralize }} {{ readers|pluralize:"has,have" }} read {{ thinker.name }}.</p>{% endif %}
+      </section>
+
+      {% if quotes %}
+      <section class="work-section">
+        <h2 class="section-title">In their own words</h2>
+        <div class="quote-stack">{% for quote in quotes %}{% include "partials/quote_card.html" %}{% endfor %}</div>
+      </section>
+      {% endif %}
+    </div>
+
+    <aside class="thinker-side">
+      <section class="side-card">
+        <h2 class="section-label">Influenced by</h2>
+        {% for t in influences %}{% include "partials/thinker_chip.html" with thinker=t %}{% empty %}<p class="muted small">No recorded influences in our catalogue.</p>{% endfor %}
+      </section>
+      <section class="side-card">
+        <h2 class="section-label">Influenced</h2>
+        {% for t in influenced %}{% include "partials/thinker_chip.html" with thinker=t %}{% empty %}<p class="muted small">No one yet in our catalogue.</p>{% endfor %}
+      </section>
+    </aside>
+  </div>
+</article>
+{% endblock %}

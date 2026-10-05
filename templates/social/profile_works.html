@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}{{ title }} · {{ profile_user.name }} · Philos{% endblock %}
+{% block content %}
+<div class="container">
+  {% include "social/_profile_header.html" %}
+  <div class="section-head">
+    <p class="muted">{{ page.paginator.count }} work{{ page.paginator.count|pluralize }}</p>
+    <nav class="sort-links" aria-label="Sort">
+      <a href="?sort=recent" {% if sort == 'recent' %}aria-current="page"{% endif %}>Recent</a>
+      <a href="?sort=rating" {% if sort == 'rating' %}aria-current="page"{% endif %}>Rating</a>
+      <a href="?sort=year" {% if sort == 'year' %}aria-current="page"{% endif %}>Year</a>
+      <a href="?sort=title" {% if sort == 'title' %}aria-current="page"{% endif %}>Title</a>
+    </nav>
+  </div>
+  <ul class="work-grid">
+    {% for st in page.object_list %}<li>{% cover st.work "md" True True st.rating %}{% if st.is_liked %}<span class="like-dot" title="Liked">♥</span>{% endif %}</li>{% empty %}<li class="empty">{{ empty }}</li>{% endfor %}
+  </ul>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}{{ era.name }} ({{ era.span }}): philosophers, historians and key works · Philos{% endblock %}
+{% block description %}{{ era.summary }} Explore the thinkers, schools and great books of the {{ era.name }}.{% endblock %}
+{% block content %}
+<div class="container" style="--era: {{ era.color }}">
+  <header class="page-header era-header">
+    <p class="eyebrow"><a href="{% url 'timeline' %}">Timeline</a> · {{ era.span }}</p>
+    <h1 class="page-title">{{ era.name }}</h1>
+    <p class="lead">{{ era.summary }}</p>
+    <div class="prose"><p>{{ era.description }}</p></div>
+  </header>
+  <section class="section">
+    <h2 class="section-label">Thinkers</h2>
+    <div class="chip-grid">{% for thinker in thinkers %}{% include "partials/thinker_chip.html" %}{% endfor %}</div>
+  </section>
+  <section class="section">
+    <h2 class="section-label">Schools that began here</h2>
+    <div class="tag-row">{% for s in schools %}<a class="tag tag-school" href="{{ s.get_absolute_url }}">{{ s.name }}</a>{% empty %}<span class="muted">—</span>{% endfor %}</div>
+  </section>
+  <section class="section">
+    <div class="section-head"><h2 class="section-label">Great works</h2><a href="{% url 'work_list' %}?era={{ era.slug }}">All works from this era →</a></div>
+    {% include "partials/work_grid.html" with works=works %}
+  </section>
+  <nav class="era-nav">
+    {% if prev_era %}<a href="{{ prev_era.get_absolute_url }}">← {{ prev_era.name }}</a>{% else %}<span></span>{% endif %}
+    {% if next_era %}<a href="{{ next_era.get_absolute_url }}">{{ next_era.name }} →</a>{% endif %}
+  </nav>
+</div>
+{% endblock %}

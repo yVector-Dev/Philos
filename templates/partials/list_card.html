@@ -1,0 +1,10 @@
+{% load philos %}<article class="list-card">
+  <a class="list-stack" href="{{ rl.get_absolute_url }}" aria-label="{{ rl.title }}">
+    {% for item in rl.items.all|slice:":5" %}{% cover item.work "xs" False %}{% empty %}<span class="list-stack-empty">Empty list</span>{% endfor %}
+  </a>
+  <div class="list-card-body">
+    <h3><a href="{{ rl.get_absolute_url }}">{{ rl.title }}</a></h3>
+    <p class="muted small">{% if rl.is_editorial %}<span class="badge">Editors' pick</span> {% else %}by <a href="{{ rl.user.get_absolute_url }}">{{ rl.user.name }}</a> · {% endif %}{{ rl.items.all|length }} work{{ rl.items.all|length|pluralize }}{% if rl.like_count %} · ♥ {{ rl.like_count }}{% endif %}</p>
+    {% if rl.description and not hide_description %}<p class="list-card-desc">{{ rl.description|truncatewords:28 }}</p>{% endif %}
+  </div>
+</article>

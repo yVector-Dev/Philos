@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load philos %}
+{% block title %}Lists by {{ profile_user.name }} · Philos{% endblock %}
+{% block content %}
+<div class="container">
+  {% include "social/_profile_header.html" %}
+  {% if user == profile_user %}<p><a class="btn btn-primary btn-sm" href="{% url 'list_create' %}">{% icon "plus" 14 %} New list</a></p>{% endif %}
+  <div class="list-grid">{% for rl in lists %}{% include "partials/list_card.html" %}{% empty %}<p class="empty-state">No lists yet.</p>{% endfor %}</div>
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Reviews by {{ profile_user.name }} · Philos{% endblock %}
+{% block content %}
+<div class="container">
+  {% include "social/_profile_header.html" %}
+  <div class="narrow-left review-list">
+    {% for entry in page.object_list %}{% include "partials/review_card.html" with show_work=True %}{% empty %}<p class="empty-state">No reviews yet.</p>{% endfor %}
+  </div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

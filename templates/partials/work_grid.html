@@ -1,0 +1,7 @@
+{% load philos %}<ul class="work-grid{% if dense %} work-grid-dense{% endif %}">
+  {% for work in works %}
+  <li>{% with st=states|get_item:work.pk %}{% cover work "md" True True st.rating %}{% if st.is_read %}<span class="read-dot" title="You've read this">{% icon "check" 12 %}</span>{% endif %}{% endwith %}</li>
+  {% empty %}
+  <li class="empty">{{ empty|default:"Nothing here yet." }}</li>
+  {% endfor %}
+</ul>
